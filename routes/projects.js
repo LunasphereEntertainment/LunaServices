@@ -21,6 +21,85 @@ router.get('/:workspaceId/projects', (req, res) => {
     });
 });
 
+router.get('/:workspaceId/:projectId/tags/list', (req, res) => {
+    let knex = req.app.get('db');
+
+    knex("project_tags")
+        .where({
+            project_id: req.params.projectId
+        })
+        .then((results) => {
+            res.json(results);
+        })
+});
+
+router.route('/:workspaceId/:projectId/tags/:tagId')
+    .get((req, res) => {
+        let knex = req.app.get('db');
+
+        knex("project_tags")
+            .where({
+                tag_id: req.params.tagId,
+                project_id: req.params.projectId
+            })
+            .first()
+            .then((result) => {
+                if (result)
+                    res.json(result);
+                else
+                    res.status(404).send("Requested resource not found.");
+            })
+    })
+    .post((req, res) => {
+        let knex = req.app.get('db');
+
+        let tag = req.body;
+
+        knex("project_tags")
+            .insert({
+                tag_name: tag.name
+            })
+            .returning("tag_id")
+            .then((ids) => {
+                if (ids.length > 0) {
+                    tag.tagId = ids[0];
+                    res.json(tag);
+                } else {
+                    res.sendStatus(500);
+                }
+            })
+    })
+    .put((req, res) => {
+        let knex = req.app.get('db');
+
+        let tag = req.body;
+
+        knex("project_tags")
+            .update({
+                tag_name: tag.name
+            })
+            .where({
+                tag_id: req.params.tagId,
+                project_id: req.params.projectId
+            })
+            .then(() => {
+                res.json(tag);
+            })
+    })
+    .delete((req, res) => {
+        let knex = req.app.get('db');
+
+        knex("project_tags")
+            .where({
+                project_id: req.params.projectId,
+                tag_id: req.params.tagId
+            })
+            .del()
+            .then(() => {
+                res.sendStatus(204);
+            })
+    });
+
 router.route('/:workspaceId/:projectId')
     .get((req, res) => {
         let knex = req.app.get('db');
@@ -36,7 +115,7 @@ router.route('/:workspaceId/:projectId')
                     knex("ln_project_language")
                         .select("programming_languages.*")
                         .where({project_id: req.params.projectId})
-                        .join("programming_languages", {'programming_languages.lang_id' : 'ln_project_language.p_lang_id'})
+                        .join("programming_languages", {'programming_languages.lang_id': 'ln_project_language.p_lang_id'})
                         .then((langs) => {
                             result.languages = langs;
                             res.json(result);
@@ -92,7 +171,9 @@ router.route('/:workspaceId/:projectId')
                 .then(() => {
                     res.json(project);
                 })
-                .catch(() => {trx.rollback(), res.sendStatus(500);});
+                .catch(() => {
+                    trx.rollback(), res.sendStatus(500);
+                });
         })
 
 
