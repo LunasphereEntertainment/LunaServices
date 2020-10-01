@@ -1,0 +1,16 @@
+INSERT INTO "permissions" (permission_name, permission_value) VALUES
+("create:workspace", 1),
+("update:workspace", 2),
+("delete:workspace", 4),
+("create:project", 8),
+("update:project", 16),
+("delete:project", 32),
+("create:task", 64),
+("update:task", 128),
+("updateall:task", 256),
+("delete:task", 512),
+("deleteall:task", 1024),
+("create:post", 2048),
+("update:post", 4096),
+("updateall:post", 8192),
+("deleteall:post", 16384);

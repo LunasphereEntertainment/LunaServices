@@ -10,6 +10,7 @@ CREATE TABLE "users" (
 
 CREATE TABLE "posts" (
   "post_id" SERIAL PRIMARY KEY,
+  "workspace_id" int NOT NULL,
   "author_id" int NOT NULL,
   "header" text,
   "body" text
@@ -26,6 +27,7 @@ CREATE TABLE "channel_members" (
 );
 
 CREATE TABLE "chat_messages" (
+  "message_id" SERIAL PRIMARY KEY,
   "channel_id" int NOT NULL,
   "author_id" int NOT NULL,
   "content" text
@@ -176,3 +178,5 @@ ALTER TABLE "user_project_perms" ADD FOREIGN KEY ("user_id") REFERENCES "users" 
 ALTER TABLE "user_workspace_perms" ADD FOREIGN KEY ("workspace_id") REFERENCES "workspaces" ("workspace_id");
 
 ALTER TABLE "user_project_perms" ADD FOREIGN KEY ("project_id") REFERENCES "projects" ("project_id");
+
+ALTER TABLE "posts" ADD FOREIGN KEY ("workspace_id") REFERENCES "workspaces" ("workspace_id");
