@@ -26,7 +26,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/api/', indexRouter);
+app.use('/api', indexRouter);
 app.use('/api/auth', authRouter);
 
 app.use(jwt({secret: config.security.secret, algorithms: ['HS256']}));

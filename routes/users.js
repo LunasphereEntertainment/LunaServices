@@ -37,13 +37,17 @@ router.route('/:userId')
     .put((req, res) => {
       let knex = req.app.get('db');
       let userInfo = req.body;
+
+      let updateObj = {};
+      let validUpdates = ['firstname', 'lastname', 'email'];
+      for (let key in userInfo) {
+          if (validUpdates.includes(key))
+              updateObj[key] = userInfo[key];
+      }
+
       knex("users")
           .where({user_id: req.params.userId})
-          .update({
-            firstname: userInfo.firstname,
-            lastname: userInfo.lastname,
-            email: userInfo.email
-          })
+          .update(updateObj)
           .then(() => {
             res.sendStatus(204);
           })
