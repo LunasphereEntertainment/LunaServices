@@ -4,6 +4,8 @@ const jwt = require('jsonwebtoken');
 const router = express.Router();
 const rateLimit = require("express-rate-limit");
 
+const { encrypt } = require("../../shared/encrypt");
+
 const {genSalt, legacyAuth} = require("../util");
 
 // Rate Limit - Do not permit more than...
@@ -24,14 +26,21 @@ router.post('/login', (req, res) => {
                 let salt = user.salt;
 
                 let now = new Date();
-                if (user.password.contains("$")) {
+                if (user.password.includes("$")) {
                     argon2.verify(user.password, `${req.body.password}${salt}`).then((result) => {
                         if (result) {
+
+                            let tkBody = {
+                                userId: user.user_id
+                            }
+
+                            if (req.query['includeKey']) {
+                                tkBody.pKey = encrypt(req.body.password);
+                            }
+
                             res.json({
                                 username: req.body.username,
-                                token: jwt.sign({
-                                    userId: user.user_id
-                                }, config.security.secret)
+                                token: jwt.sign(tkBody, config['security']['secret'])
                             });
                         } else {
                             res.status(403)
